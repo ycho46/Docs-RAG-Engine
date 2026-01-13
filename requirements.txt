@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic
+chromadb
+sentence-transformers
+rank-bm25
+numpy
+requests
+prometheus-client
+

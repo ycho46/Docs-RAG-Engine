@@ -1,0 +1,17 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# RAG generated artifacts
+chunks.jsonl
+rag_index/
+
+# Local env
+.env
+
+# OS noise
+.DS_Store
+Thumbs.db
+
