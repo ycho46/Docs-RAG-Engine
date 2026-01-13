@@ -1,0 +1,52 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+
+  rag-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Point to docs corpus (mounted) and output paths
+      CORPUS_DIR: /corpus
+      CHUNKS_OUT: /app/chunks.jsonl
+      CHUNKS_IN: /app/chunks.jsonl
+      INDEX_DIR: /app/rag_index
+
+      # Ollama in the other container
+      OLLAMA_URL: http://ollama:11434/api/generate
+      OLLAMA_MODEL: llama3.2:1b
+
+      # Retrieval knobs
+      RAG_TOPK_BM25: "30"
+      RAG_TOPK_VEC: "30"
+      RAG_TOPK_FINAL: "8"
+      RAG_TEMPERATURE: "0.2"
+
+      # Disable OTEL until you wire Chronosphere
+      ENABLE_OTEL: "0"
+    volumes:
+      # Mount docs corpus read-only
+      - ../otel-docs:/corpus:ro
+      # Persist your indexes across restarts
+      - rag_index:/app/rag_index
+      # (optional) persist chunks.jsonl
+      - rag_chunks:/app
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_models:
+  rag_index:
+  rag_chunks:
+
